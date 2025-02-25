@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pac-Man das Funções Orgânicas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            background-color: #111;
+            display: block;
+            margin: 0 auto;
+            border: 3px solid #fff;
+        }
+        h1 {
+            margin: 10px 0;
+        }
+        #gameOver {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 3px solid #fff;
+            border-radius: 10px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>👾 Pac-Man das Funções Orgânicas 👾</h1>
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+    <div id="gameOver">
+        <h2>💀 Game Over 💀</h2>
+        <p id="finalScore"></p>
+        <button onclick="restartGame()">Reiniciar</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScore = document.getElementById('finalScore');
+
+        const pacMan = { x: 300, y: 300, size: 20, dx: 0, dy: 0, speed: 4, mouthOpen: true };
+        const groups = [];
+        const radicals = [];
+        let score = 0;
+        let gameRunning = true;
+
+        document.addEventListener('keydown', movePacMan);
+
+        function movePacMan(e) {
+            switch (e.key) {
+                case 'ArrowUp': pacMan.dx = 0; pacMan.dy = -pacMan.speed; break;
+                case 'ArrowDown': pacMan.dx = 0; pacMan.dy = pacMan.speed; break;
+                case 'ArrowLeft': pacMan.dx = -pacMan.speed; pacMan.dy = 0; break;
+                case 'ArrowRight': pacMan.dx = pacMan.speed; pacMan.dy = 0; break;
+            }
+        }
+
+        function drawPacMan() {
+            ctx.beginPath();
+            const mouthAngle = pacMan.mouthOpen ? 0.2 * Math.PI : 0;
+            ctx.arc(pacMan.x, pacMan.y, pacMan.size, mouthAngle, 2 * Math.PI - mouthAngle);
+            ctx.lineTo(pacMan.x, pacMan.y);
+            ctx.fillStyle = 'yellow';
+            ctx.fill();
+            ctx.closePath();
+            pacMan.mouthOpen = !pacMan.mouthOpen;
+        }
+
+        function drawGroups() {
+            groups.forEach(g => {
+                ctx.beginPath();
+                ctx.fillStyle = g.type === 'Ácido' ? 'red' : 'lightgreen';
+                ctx.arc(g.x, g.y, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+                ctx.fillStyle = 'white';
+                ctx.fillText(g.label, g.x - 15, g.y - 15);
+            });
+        }
+
+        function drawRadicals() {
+            radicals.forEach(r => {
+                ctx.beginPath();
+                ctx.fillStyle = 'purple';
+                ctx.arc(r.x, r.y, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+            });
+        }
+
+        function spawnGroups() {
+            const functions = [
+                { label: 'Álcool', type: 'Base' },
+                { label: 'Cetona', type: 'Base' },
+                { label: 'Éster', type: 'Base' },
+                { label: 'Aldeído', type: 'Base' },
+                { label: 'Ácido', type: 'Ácido' }
+            ];
+
+            for (let i = 0; i < 5; i++) {
+                const func = functions[Math.floor(Math.random() * functions.length)];
+                groups.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    label: func.label,
+                    type: func.type
+                });
+            }
+        }
+
+        function spawnRadicals() {
+            for (let i = 0; i < 3; i++) {
+                radicals.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height
+                });
+            }
+        }
+
+        function update() {
+            if (!gameRunning) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            pacMan.x += pacMan.dx;
+            pacMan.y += pacMan.dy;
+
+            if (pacMan.x < 0) pacMan.x = canvas.width;
+            if (pacMan.x > canvas.width) pacMan.x = 0;
+            if (pacMan.y < 0) pacMan.y = canvas.height;
+            if (pacMan.y > canvas.height) pacMan.y = 0;
+
+            groups.forEach((g, i) => {
+                const dist = Math.hypot(pacMan.x - g.x, pacMan.y - g.y);
+                if (dist < pacMan.size + 10) {
+                    if (g.type === 'Ácido') {
+                        endGame();
+                    } else {
+                        score += 10;
+                        pacMan.speed += 0.2;
+                        groups.splice(i, 1);
+                        spawnGroups();
+                    }
+                }
+            });
+
+            radicals.forEach(r => {
+                const dist = Math.hypot(pacMan.x - r.x, pacMan.y - r.y);
+                if (dist < pacMan.size + 15) {
+                    endGame();
+                }
+            });
+
+            drawPacMan();
+            drawGroups();
+            drawRadicals();
+
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Pontuação: ${score}`, 10, 20);
+
+            requestAnimationFrame(update);
+        }
+
+        function endGame() {
+            gameRunning = false;
+            finalScore.textContent = `Sua pontuação: ${score}`;
+            gameOverScreen.style.display = 'block';
+        }
+
+        function restartGame() {
+            score = 0;
+            pacMan.x = 300;
+            pacMan.y = 300;
+            pacMan.speed = 4;
+            groups.length = 0;
+            radicals.length = 0;
+            spawnGroups();
+            spawnRadicals();
+            gameOverScreen.style.display = 'none';
+            gameRunning = true;
+            update();
+        }
+
+        spawnGroups();
+        spawnRadicals();
+        update();
+    </script>
+</body>
+</html>
