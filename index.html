@@ -34,6 +34,24 @@
             border-radius: 10px;
             color: #fff;
         }
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            background-color: #fff;
+            color: #000;
+            font-size: 24px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -44,7 +62,12 @@
         <p id="finalScore"></p>
         <button onclick="restartGame()">Reiniciar</button>
     </div>
-
+    <div class="controls">
+        <button class="control-btn" onclick="movePacManMobile('up')">⬆</button><br>
+        <button class="control-btn" onclick="movePacManMobile('left')">⬅</button>
+        <button class="control-btn" onclick="movePacManMobile('right')">➡</button>
+        <button class="control-btn" onclick="movePacManMobile('down')">⬇</button>
+    </div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -72,6 +95,15 @@
                 case 'ArrowDown': pacMan.dx = 0; pacMan.dy = pacMan.speed; break;
                 case 'ArrowLeft': pacMan.dx = -pacMan.speed; pacMan.dy = 0; break;
                 case 'ArrowRight': pacMan.dx = pacMan.speed; pacMan.dy = 0; break;
+            }
+        }
+
+        function movePacManMobile(direction) {
+            switch (direction) {
+                case 'up': pacMan.dx = 0; pacMan.dy = -pacMan.speed; break;
+                case 'down': pacMan.dx = 0; pacMan.dy = pacMan.speed; break;
+                case 'left': pacMan.dx = -pacMan.speed; pacMan.dy = 0; break;
+                case 'right': pacMan.dx = pacMan.speed; pacMan.dy = 0; break;
             }
         }
 
@@ -128,7 +160,7 @@
                         score += 10;
                         pacMan.speed += 0.2;
                         molecules.splice(i, 1);
-                        spawnMolecules(1); 
+                        spawnMolecules(1);
                     }
                 }
             });
