@@ -51,11 +51,18 @@
         const gameOverScreen = document.getElementById('gameOver');
         const finalScore = document.getElementById('finalScore');
 
-        const pacMan = { x: 300, y: 300, size: 20, dx: 0, dy: 0, speed: 4, mouthOpen: true };
-        const groups = [];
-        const radicals = [];
+        const pacMan = { x: 300, y: 300, size: 20, dx: 0, dy: 0, speed: 3, mouthState: 0 };
+        const molecules = [];
         let score = 0;
         let gameRunning = true;
+
+        const moleculeImages = {
+            'Álcool': 'alcool.webp',
+            'Cetona': 'cetona.png',
+            'Éster': 'ester.png',
+            'Aldeído': 'aldeido.png',
+            'Ácido': 'acido.png'
+        };
 
         document.addEventListener('keydown', movePacMan);
 
@@ -70,62 +77,31 @@
 
         function drawPacMan() {
             ctx.beginPath();
-            const mouthAngle = pacMan.mouthOpen ? 0.2 * Math.PI : 0;
+            const mouthAngle = 0.1 * Math.PI * (Math.sin(pacMan.mouthState) + 1);
             ctx.arc(pacMan.x, pacMan.y, pacMan.size, mouthAngle, 2 * Math.PI - mouthAngle);
             ctx.lineTo(pacMan.x, pacMan.y);
             ctx.fillStyle = 'yellow';
             ctx.fill();
             ctx.closePath();
-            pacMan.mouthOpen = !pacMan.mouthOpen;
+            pacMan.mouthState += 0.2;
         }
 
-        function drawGroups() {
-            groups.forEach(g => {
-                ctx.beginPath();
-                ctx.fillStyle = g.type === 'Ácido' ? 'red' : 'lightgreen';
-                ctx.arc(g.x, g.y, 10, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.closePath();
-                ctx.fillStyle = 'white';
-                ctx.fillText(g.label, g.x - 15, g.y - 15);
+        function drawMolecules() {
+            molecules.forEach(m => {
+                const img = new Image();
+                img.src = moleculeImages[m.label];
+                ctx.drawImage(img, m.x - 15, m.y - 15, 30, 30);
             });
         }
 
-        function drawRadicals() {
-            radicals.forEach(r => {
-                ctx.beginPath();
-                ctx.fillStyle = 'purple';
-                ctx.arc(r.x, r.y, 15, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.closePath();
-            });
-        }
-
-        function spawnGroups() {
-            const functions = [
-                { label: 'Álcool', type: 'Base' },
-                { label: 'Cetona', type: 'Base' },
-                { label: 'Éster', type: 'Base' },
-                { label: 'Aldeído', type: 'Base' },
-                { label: 'Ácido', type: 'Ácido' }
-            ];
-
-            for (let i = 0; i < 5; i++) {
-                const func = functions[Math.floor(Math.random() * functions.length)];
-                groups.push({
+        function spawnMolecules(count = 3) {
+            const functions = Object.keys(moleculeImages);
+            for (let i = 0; i < count; i++) {
+                const label = functions[Math.floor(Math.random() * functions.length)];
+                molecules.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    label: func.label,
-                    type: func.type
-                });
-            }
-        }
-
-        function spawnRadicals() {
-            for (let i = 0; i < 3; i++) {
-                radicals.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height
+                    label: label
                 });
             }
         }
@@ -143,30 +119,22 @@
             if (pacMan.y < 0) pacMan.y = canvas.height;
             if (pacMan.y > canvas.height) pacMan.y = 0;
 
-            groups.forEach((g, i) => {
-                const dist = Math.hypot(pacMan.x - g.x, pacMan.y - g.y);
+            molecules.forEach((m, i) => {
+                const dist = Math.hypot(pacMan.x - m.x, pacMan.y - m.y);
                 if (dist < pacMan.size + 10) {
-                    if (g.type === 'Ácido') {
+                    if (m.label === 'Ácido') {
                         endGame();
                     } else {
                         score += 10;
                         pacMan.speed += 0.2;
-                        groups.splice(i, 1);
-                        spawnGroups();
+                        molecules.splice(i, 1);
+                        spawnMolecules(1); 
                     }
                 }
             });
 
-            radicals.forEach(r => {
-                const dist = Math.hypot(pacMan.x - r.x, pacMan.y - r.y);
-                if (dist < pacMan.size + 15) {
-                    endGame();
-                }
-            });
-
             drawPacMan();
-            drawGroups();
-            drawRadicals();
+            drawMolecules();
 
             ctx.fillStyle = 'white';
             ctx.font = '20px Arial';
@@ -186,17 +154,14 @@
             pacMan.x = 300;
             pacMan.y = 300;
             pacMan.speed = 4;
-            groups.length = 0;
-            radicals.length = 0;
-            spawnGroups();
-            spawnRadicals();
+            molecules.length = 0;
+            spawnMolecules();
             gameOverScreen.style.display = 'none';
             gameRunning = true;
             update();
         }
 
-        spawnGroups();
-        spawnRadicals();
+        spawnMolecules();
         update();
     </script>
 </body>
