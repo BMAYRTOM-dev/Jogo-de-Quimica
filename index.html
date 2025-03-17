@@ -1,200 +1,48 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pac-Man das Funções Orgânicas</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #000;
-            color: #fff;
-            margin: 0;
-            overflow: hidden;
-        }
-        canvas {
-            background-color: #111;
-            display: block;
-            margin: 0 auto;
-            border: 3px solid #fff;
-        }
-        h1 {
-            margin: 10px 0;
-        }
-        #gameOver {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border: 3px solid #fff;
-            border-radius: 10px;
-            color: #fff;
-        }
-        .controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-        }
-        .control-btn {
-            width: 50px;
-            height: 50px;
-            background-color: #fff;
-            color: #000;
-            font-size: 24px;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-    </style>
+    <!-- Adicionando a biblioteca nipplejs -->
+    <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
+    <link href="./styles.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore-compat.js"></script>
 </head>
+
 <body>
-    <h1>👾 Pac-Man das Funções Orgânicas 👾</h1>
-    <canvas id="gameCanvas" width="600" height="600"></canvas>
-    <div id="gameOver">
-        <h2>💀 Game Over 💀</h2>
-        <p id="finalScore"></p>
-        <button onclick="restartGame()">Reiniciar</button>
+    <div class="wrapper">
+        <!-- Tela Inicial -->
+        <div id="startScreen">
+            <h1>Pac-Man das Funções Orgânicas</h1>
+            <div class="input-group">
+                <input type="text" id="playerName" placeholder="Digite seu nome">
+                <button id="startGame">Jogar</button>
+            </div>
+            <div id="ranking" style="display: none;">
+                <h2>🏆 Ranking 🏆</h2>
+                <ol class="rankingList"></ol>
+            </div>
+        </div>
+
+        <p class="" id="scoreLabel" style="display: none;">Pontuação: 0</p>
+        <canvas id="gameCanvas" width="600" height="600" style="display: none;"></canvas>
+        <div id="gameOver" style="display: none;">
+            <h2>💀Game Over💀</h2>
+            <p id="finalScore"></p>
+            <button id="restartGame">Reiniciar</button>
+        </div>
+        <div id="rankingGame" style="display: none;">
+            <h2>🏆 Ranking:</h2>
+            <ol class="rankingList"></ol>
+        </div>
+        <div class="joystick-container" id="joystick" style="display: none;"></div>
     </div>
-    <div class="controls">
-        <button class="control-btn" onclick="movePacManMobile('up')">⬆</button><br>
-        <button class="control-btn" onclick="movePacManMobile('left')">⬅</button>
-        <button class="control-btn" onclick="movePacManMobile('right')">➡</button>
-        <button class="control-btn" onclick="movePacManMobile('down')">⬇</button>
-    </div>
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const gameOverScreen = document.getElementById('gameOver');
-        const finalScore = document.getElementById('finalScore');
-
-        const pacMan = { x: 300, y: 300, size: 20, dx: 0, dy: 0, speed: 3, mouthState: 0 };
-        const molecules = [];
-        let score = 0;
-        let gameRunning = true;
-
-        const moleculeImages = {
-            'Álcool': 'alcool.webp',
-            'Cetona': 'cetona.png',
-            'Éster': 'ester.png',
-            'Aldeído': 'aldeido.png',
-            'Ácido': 'acido.png'
-        };
-
-        document.addEventListener('keydown', movePacMan);
-
-        function movePacMan(e) {
-            switch (e.key) {
-                case 'ArrowUp': pacMan.dx = 0; pacMan.dy = -pacMan.speed; break;
-                case 'ArrowDown': pacMan.dx = 0; pacMan.dy = pacMan.speed; break;
-                case 'ArrowLeft': pacMan.dx = -pacMan.speed; pacMan.dy = 0; break;
-                case 'ArrowRight': pacMan.dx = pacMan.speed; pacMan.dy = 0; break;
-            }
-        }
-
-        function movePacManMobile(direction) {
-            switch (direction) {
-                case 'up': pacMan.dx = 0; pacMan.dy = -pacMan.speed; break;
-                case 'down': pacMan.dx = 0; pacMan.dy = pacMan.speed; break;
-                case 'left': pacMan.dx = -pacMan.speed; pacMan.dy = 0; break;
-                case 'right': pacMan.dx = pacMan.speed; pacMan.dy = 0; break;
-            }
-        }
-
-        function drawPacMan() {
-            ctx.beginPath();
-            const mouthAngle = 0.1 * Math.PI * (Math.sin(pacMan.mouthState) + 1);
-            ctx.arc(pacMan.x, pacMan.y, pacMan.size, mouthAngle, 2 * Math.PI - mouthAngle);
-            ctx.lineTo(pacMan.x, pacMan.y);
-            ctx.fillStyle = 'yellow';
-            ctx.fill();
-            ctx.closePath();
-            pacMan.mouthState += 0.2;
-        }
-
-        function drawMolecules() {
-            molecules.forEach(m => {
-                const img = new Image();
-                img.src = moleculeImages[m.label];
-                ctx.drawImage(img, m.x - 15, m.y - 15, 30, 30);
-            });
-        }
-
-        function spawnMolecules(count = 3) {
-            const functions = Object.keys(moleculeImages);
-            for (let i = 0; i < count; i++) {
-                const label = functions[Math.floor(Math.random() * functions.length)];
-                molecules.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    label: label
-                });
-            }
-        }
-
-        function update() {
-            if (!gameRunning) return;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            pacMan.x += pacMan.dx;
-            pacMan.y += pacMan.dy;
-
-            if (pacMan.x < 0) pacMan.x = canvas.width;
-            if (pacMan.x > canvas.width) pacMan.x = 0;
-            if (pacMan.y < 0) pacMan.y = canvas.height;
-            if (pacMan.y > canvas.height) pacMan.y = 0;
-
-            molecules.forEach((m, i) => {
-                const dist = Math.hypot(pacMan.x - m.x, pacMan.y - m.y);
-                if (dist < pacMan.size + 10) {
-                    if (m.label === 'Ácido') {
-                        endGame();
-                    } else {
-                        score += 10;
-                        pacMan.speed += 0.2;
-                        molecules.splice(i, 1);
-                        spawnMolecules(1);
-                    }
-                }
-            });
-
-            drawPacMan();
-            drawMolecules();
-
-            ctx.fillStyle = 'white';
-            ctx.font = '20px Arial';
-            ctx.fillText(`Pontuação: ${score}`, 10, 20);
-
-            requestAnimationFrame(update);
-        }
-
-        function endGame() {
-            gameRunning = false;
-            finalScore.textContent = `Sua pontuação: ${score}`;
-            gameOverScreen.style.display = 'block';
-        }
-
-        function restartGame() {
-            score = 0;
-            pacMan.x = 300;
-            pacMan.y = 300;
-            pacMan.speed = 4;
-            molecules.length = 0;
-            spawnMolecules();
-            gameOverScreen.style.display = 'none';
-            gameRunning = true;
-            update();
-        }
-
-        spawnMolecules();
-        update();
-    </script>
+    <script type="module" src="firebase.js"></script>
+    <script type="module" src="index.js"></script>
 </body>
+
 </html>

@@ -1,0 +1,220 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100dvh;
+  width: 100dvw;
+}
+
+.wrapper {
+  font-family: 'Press Start 2P', cursive;
+  text-align: center;
+  background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  margin: 0;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+canvas {
+  background: rgba(0, 0, 0, 0.404);
+  border: 3px solid #45f0df;
+  box-shadow: 0 0 20px rgba(69, 240, 223, 0.3);
+  border-radius: 10px;
+  margin: 20px auto;
+  width: 90%;
+  max-width: 32rem;
+}
+
+h1 {
+  margin: 20px 0 0 0;
+  font-size: 1rem;
+  text-shadow: 0 0 10px #45f0df;
+  color: #ff61d7;
+  letter-spacing: 2px;
+}
+
+#gameOver {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(145deg, #16213e 0%, #1a1a2e 100%);
+  padding: 1rem 1rem;
+  width: max-content;
+  max-width: 85%;
+  border: 2px solid #ff61d7;
+  border-radius: 15px;
+  box-shadow: 0 0 30px rgba(255, 97, 215, 0.4);
+  z-index: 1000;
+}
+
+#gameOver h2 {
+  color: #ff61d7;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(255, 97, 215, 0.8);
+}
+
+#finalScore {
+  font-size: 1.2rem;
+  margin: 15px 0;
+  color: #45f0df;
+}
+
+button {
+  background: linear-gradient(145deg, #45f0df 0%, #2ab8a8 100%);
+  border: none;
+  padding: 12px 25px;
+  color: #16213e;
+  font-family: 'Press Start 2P', cursive;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(69, 240, 223, 0.4);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(69, 240, 223, 0.6);
+}
+
+.joystick-container {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100dvw;
+  height: 100dvh;
+  opacity: 0.9;
+  z-index: 500;
+}
+
+#scoreLabel {
+  width: 100%;
+  
+}
+
+/* Efeito de partículas no fundo */
+body::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 80%),
+    repeating-linear-gradient(45deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(255, 255, 255, 0.05) 2px,
+      rgba(255, 255, 255, 0.05) 4px);
+  animation: starPulse 2s infinite alternate;
+}
+
+@keyframes starPulse {
+  from {
+    opacity: 0.3;
+  }
+
+  to {
+    opacity: 0.7;
+  }
+}
+
+#ranking {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border: 2px solid #45f0df;
+  border-radius: 10px;
+  max-width: 250px;
+  z-index: 1000;
+}
+
+#rankingGame {
+  user-select: none;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border: 2px solid #45f0df;
+  border-radius: 10px;
+  max-width: 250px;
+  z-index: 1000;
+}
+
+#ranking h2 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: white
+}
+
+.rankingList {
+  list-style: none;
+  padding: 0;
+}
+
+.rankingList p {
+  margin: 5px 0;
+  font-size: 0.8rem;
+  color: #ff61d7;
+}
+
+/* Tela Inicial */
+#startScreen {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 1000;
+  width: 90%;
+}
+
+.input-group {
+  margin: 2rem 0;
+  width: 100%;
+}
+
+#playerName {
+  padding: 12px;
+  font-size: 1.2rem;
+  border: 2px solid #45f0df;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-family: 'Press Start 2P', cursive;
+  max-width: 90%;
+}
+
+#startScreen button {
+  padding: 12px 25px;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+/* Ajuste do ranking na tela inicial */
+#startScreen #ranking {
+  position: relative;
+  top: auto;
+  right: auto;
+  margin: 2rem auto;
+  max-width: 300px;
+}
