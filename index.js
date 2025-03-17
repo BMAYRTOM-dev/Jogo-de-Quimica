@@ -182,7 +182,9 @@ function update() {
         updateScore()
         pacMan.speed += 0.2; // Aumenta a velocidade do Pac-Man
         molecules.splice(i, 1); // Remove a molécula coletada
-        spawnMolecules(2); // Gera mais 2 moléculas
+        if (molecules.length < 10) {
+          spawnMolecules(2); // Gera mais 2 moléculas
+        }
       }
     }
   });
@@ -190,11 +192,6 @@ function update() {
   // Desenha o Pac-Man e as moléculas na tela
   drawPacMan();
   drawMolecules();
-
-  // Exibe a pontuação atual na tela
-  ctx.fillStyle = 'white';
-  ctx.font = '20px Arial';
-  ctx.fillText(`Pontuação: ${score}`, 10, 20);
 
   // Chama a função update novamente para o próximo frame
   requestAnimationFrame(update);

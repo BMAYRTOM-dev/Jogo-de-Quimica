@@ -31,7 +31,7 @@ canvas {
   border-radius: 10px;
   margin: 20px auto;
   width: 90%;
-  max-width: 32rem;
+  max-width: 24rem;
 }
 
 h1 {
@@ -102,7 +102,7 @@ button:hover {
 
 #scoreLabel {
   width: 100%;
-  
+
 }
 
 /* Efeito de partículas no fundo */
@@ -157,7 +157,14 @@ body::after {
   border: 2px solid #45f0df;
   border-radius: 10px;
   max-width: 250px;
+  width: 80%;
   z-index: 1000;
+  max-height: 6rem;
+  overflow: auto;
+}
+
+#rankingGame::-webkit-scrollbar {
+  width: 1px;
 }
 
 #ranking h2 {
